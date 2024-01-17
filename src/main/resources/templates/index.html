@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/site.css}" />
+    <script type="text/javascript" th:src="@{/js/jquery-3.6.1.js}"></script>
+    <title>FlexiDev Test</title>
+  </head>
+  <body class="container">
+    <img th:src="@{/img/flexidev.png}" />
+    <hr>
+    <h2>Problems</h2>
+    <p>
+      <strong>The Story: Geekseat Sorcerer Saga: Return of The Coder!</strong><br>
+      Once there was a village controlled by a dark and cunning sorcerer. Coincidentally, this wizard was also a die-hard
+      programmer. He had the power to control the life and death of each villager. He would kill a specific number of
+      villagers each year. The deaths of villagers followed the pattern as described below.
+    </p>
+    <p>
+      On the 1st year she kills 1 villager<br>
+      On the 2nd year she kills 1 + 1 = 2 villagers<br>
+      On the 3rd year she kills 1 + 1 + 2 = 4 villagers<br>
+      On the 4th year she kills 1 + 1 + 2 + 3 = 7 villagers<br>
+      On the 5th year she kills 1 + 1 + 2 + 3 + 5 = 12 villagers<br>
+      And so on...
+    </p>
+    <p>
+      The sorcerer will only leave if there is a brave programmer in the villager that can create a program to solve this problem:
+    </p>
+    <p>
+      <i>Create a program which calculates the average number victims that died between two separate years (the year of birth for two victims).
+      You will use the age at death and year of death of two victims who died to calculate this.</i>
+    </p>
+    <p>
+      So, if you can create a program to solve this problem, the sorcerer will leave, and the killing will stop.
+    </p>
+    <hr>
+    <!-------------------------------------------------------------------------------------------------------->
+    <div class="row">
+      <div class="col-sm-6 col-md-6 col-lg-6">
+        <h3>Person 1</h3>
+        <input id="person1AgeAtDeath" type="number" placeholder="Enter age at death" />
+        <input id="person1YearOfDeath" type="number" placeholder="Enter year of death" />
+      </div>
+      <div class="col-sm-6 col-md-6 col-lg-6">
+        <h3>Person 2</h3>
+        <input id="person2AgeAtDeath" type="number" placeholder="Enter age at death" />
+        <input id="person2YearOfDeath" type="number" placeholder="Enter year of death" />
+      </div>
+    </div>
+    <br>
+    <p id="errorMessage" class="error-message"></p>
+    <div class="row">
+      <div class="col-sm-12 col-md-12 col-lg-12">
+        <button class="submit-class" th:attr="onclick=|submitRequest()|">Submit</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12 col-md-12 col-lg-12">
+        <button class="reset-class" th:attr="onclick=|reset()|">Reset</button>
+      </div>
+    </div>
+    <hr>
+    <!-------------------------------------------------------------------------------------------------------->
+    <h5>Sequence of sum</h5>
+    <div id="sequence">
+    </div>
+    <br>
+    <h5>Average between</h5>
+    <div id="avgBetween">
+    </div>
+    <br>
+    <h5>Average of two</h5>
+    <div id="avgOfTwo">
+    </div>
+    <br><br><br>
+  </body>
+</html>
+
+<script>
+  function showError(text, display) {
+    $("#errorMessage").text(text);
+    $("#errorMessage").css('display', display);
+  }
+
+  function reset() {
+    resetField();
+    resetAnswer();
+    showError('', 'none');
+  }
+
+  function resetField() {
+    $("#person1AgeAtDeath").val(null);
+    $("#person1YearOfDeath").val(null);
+    $("#person2AgeAtDeath").val(null);
+    $("#person2YearOfDeath").val(null);
+  }
+
+  function resetAnswer() {
+    $("#sequence").empty();
+    $("#avgBetween").empty();
+    $("#avgOfTwo").empty();
+  }
+
+  function submitRequest() {
+    var json = JSON.stringify({
+      ageAtDeath1: $("#person1AgeAtDeath").val(),
+      yearOfDeath1: $("#person1YearOfDeath").val(),
+      ageAtDeath2: $("#person2AgeAtDeath").val(),
+      yearOfDeath2: $("#person2YearOfDeath").val()
+    });
+    sendHttpRequest("POST", "/api/submit", null, json, "application/json; charset=utf-8");
+  }
+
+  function sendHttpRequest(_type, _url, _headers, _data, _contentType) {
+    $.ajax({
+      type: _type,
+      url: _url,
+      headers: _headers,
+      data: _data,
+      contentType: _contentType,
+      success: function(response, status, xhr) {
+        if(xhr.status == 200) {
+          resetAnswer();
+          $("#sequence").append(response.sequence);
+          $("#avgBetween").append(response.avgBetween);
+          $("#avgOfTwo").append(response.avgOfTwo);
+          showError('', 'none')
+        }
+      },
+      error: function(response) {
+        resetAnswer();
+        showError(response.responseText, 'block');
+      }
+    });
+  }
+</script>
